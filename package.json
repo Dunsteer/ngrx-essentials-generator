@@ -2,7 +2,7 @@
 	"name": "ngrx-essentials-generator",
 	"displayName": "Ngrx essentials generator",
 	"description": "",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"publisher": "stefanos",
 	"repository": "https://github.com/Dunsteer/ngrx-essentials-generator",
 	"engines": {
@@ -23,11 +23,13 @@
 			}
 		],
 		"menus": {
-		  "explorer/context": [{
-			  "command": "extension.generateBoilerplateForNgrx",
-			  "when": "inAngularProject"
-		}]
-	  }
+			"explorer/context": [
+				{
+					"command": "extension.generateBoilerplateForNgrx",
+					"when": "inAngularProject"
+				}
+			]
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
