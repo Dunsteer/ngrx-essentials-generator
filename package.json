@@ -2,7 +2,7 @@
 	"name": "ngrx-essentials-generator",
 	"displayName": "Ngrx essentials generator",
 	"description": "",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"publisher": "stefanos",
 	"repository": "https://github.com/Dunsteer/ngrx-essentials-generator",
 	"engines": {
