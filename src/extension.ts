@@ -19,25 +19,29 @@ export function activate(context: vscode.ExtensionContext) {
   // The commandId parameter must match the command field in package.json
   let disposable = vscode.commands.registerCommand("extension.generateBoilerplateForNgrx", context => {
     //console.log("Context", getContextPath(context));
+    try {
+      // The code you place here will be executed every time your command is executed
+      vscode.window.showInputBox().then(value => {
+        console.log(value, getContextPath(context));
 
-    // The code you place here will be executed every time your command is executed
-    vscode.window.showInputBox().then(value => {
-      console.log(value, getContextPath(context));
+        if (value != undefined) {
+          let path = value.substring(0, value.lastIndexOf("/"));
 
-      if (value != undefined) {
-        let path = value.substring(0, value.lastIndexOf("/"));
+          const fileName = value.split("/").pop();
 
-        const fileName = value.split("/").pop();
+          const contextPath = getContextPath(context);
 
-        const contextPath = getContextPath(context);
-
-        if (contextPath) {
-          generate(contextPath, path, fileName);
-        } else {
-          generate(vscode.workspace.rootPath, path, fileName);
+          if (contextPath) {
+            generate(contextPath, path, fileName);
+          } else {
+            generate(vscode.workspace.rootPath, path, fileName);
+          }
         }
-      }
-    });
+      });
+    } catch (ex) {
+      console.error(ex);
+      vscode.window.showErrorMessage(ex);
+    }
   });
 
   context.subscriptions.push(disposable);
@@ -45,16 +49,17 @@ export function activate(context: vscode.ExtensionContext) {
 
 function generate(path, folderPath, fileName) {
   if (folderPath) {
-    const folders = folderPath.split("/");
-    let tempPath = "";
+    if (!fs.existsSync(`${path}/${folderPath}`)) fs.mkdirSync(`${path}/${folderPath}`, { recursive: true });
+    // const folders = folderPath.split("/");
+    // let tempPath = "";
 
-    if (folders)
-      folders.forEach(f => {
-        if (!fs.existsSync(f)) {
-          tempPath += `/${f}`;
-          fs.mkdirSync(`${path}${tempPath}`);
-        }
-      });
+    // if (folders)
+    //   folders.forEach(f => {
+    //     if (!fs.existsSync(f)) {
+    //       tempPath += `/${f}`;
+    //       fs.mkdirSync(`${path}${tempPath}`);
+    //     }
+    //   });
   }
   if (fileName) {
     if (folderPath) generateFiles(`${path}/${folderPath}`, fileName);
@@ -66,7 +71,9 @@ function generate(path, folderPath, fileName) {
 export function deactivate() {}
 
 function generateFiles(path: string, fileName: string) {
-  const camelCased = fileName.replace(/-([a-z])/g, function (g) { return g[1].toUpperCase(); });
+  const camelCased = fileName.replace(/-([a-z])/g, function(g) {
+    return g[1].toUpperCase();
+  });
   const className = camelCased.charAt(0).toUpperCase() + camelCased.slice(1);
   const upperName = camelCased.toUpperCase();
 
