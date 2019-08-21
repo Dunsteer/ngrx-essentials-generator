@@ -66,8 +66,9 @@ function generate(path, folderPath, fileName) {
 export function deactivate() {}
 
 function generateFiles(path: string, fileName: string) {
-  const className = fileName.charAt(0).toUpperCase() + fileName.slice(1);
-  const upperName = fileName.toUpperCase();
+  const camelCased = fileName.replace(/-([a-z])/g, function (g) { return g[1].toUpperCase(); });
+  const className = camelCased.charAt(0).toUpperCase() + camelCased.slice(1);
+  const upperName = camelCased.toUpperCase();
 
   //#region Action
   const actionText = `import { Action } from '@ngrx/store';
@@ -109,7 +110,7 @@ function generateFiles(path: string, fileName: string) {
 	loading${className}: false,
   };
   
-  export function ${fileName}Reducer(state: ${className}State, action: ${className}Actions.Actions): ${className}State {
+  export function ${camelCased}Reducer(state: ${className}State, action: ${className}Actions.Actions): ${className}State {
 	switch(action.type) {
 	  case ${className}Actions.FETCH:
 		return { ...state, items: [], loading${className}: true }
@@ -140,13 +141,13 @@ function generateFiles(path: string, fileName: string) {
   
   @Injectable()
   export class ${className}Effects {
-	constructor(private _actions: Actions, private _store: Store<AppState>, private _toastr: ToastrService, private _${fileName}s: ${className}Service) { }
+	constructor(private _actions: Actions, private _store: Store<AppState>, private _toastr: ToastrService, private _${camelCased}s: ${className}Service) { }
   
 	fetch${className}: Observable<ErrorActions.Set | ${className}Actions.FetchSuccess> = createEffect(() =>
 	  this._actions.pipe(
 		ofType(${className}Actions.FETCH),
 		switchMap((search) => {
-		  return this._${fileName}s.fetch(search).pipe(
+		  return this._${camelCased}s.fetch(search).pipe(
 			map(res => {
 			  if (res) {
 				return new ${className}Actions.FetchSuccess(res as any[]);
