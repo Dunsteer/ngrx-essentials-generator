@@ -126,7 +126,6 @@ function generateFiles(path: string, fileName: string) {
 
   //#region Effects
   const effectsText = `import { Injectable } from "@angular/core";
-  import { UserService } from "./user.service";
   import { Store } from "@ngrx/store";
   import { AppState } from "src/app/app.state";
   import { ToastrService } from "ngx-toastr";
