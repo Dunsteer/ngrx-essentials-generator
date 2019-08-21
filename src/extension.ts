@@ -137,7 +137,7 @@ function generateFiles(path: string, fileName: string) {
   import * as ${className}Actions from "./${fileName}.actions";
   import * as ErrorActions from "@shared/actions/error.actions";
   
-  import { ${className}Service } from "@shared/services/${fileName}.service";
+  import { ${className}Service } from "./${fileName}.service";
   
   @Injectable()
   export class ${className}Effects {
@@ -183,8 +183,8 @@ function generateFiles(path: string, fileName: string) {
   export class ${className}Service {
 	constructor(private _http: HttpClient) {}
   
-	fetch(): Observable<void> {
-	  return this._http.get<void>(\`\${environment.apiURL}/api/${fileName}s\`);
+	fetch(search): Observable<any> {
+	  return this._http.get<any>(\`\${environment.apiURL}/api/${fileName}s\`);
 	}
   }`;
 
