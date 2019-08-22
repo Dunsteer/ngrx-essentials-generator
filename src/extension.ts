@@ -49,17 +49,18 @@ export function activate(context: vscode.ExtensionContext) {
 
 function generate(path, folderPath, fileName) {
   if (folderPath) {
-    if (!fs.existsSync(`${path}/${folderPath}`)) fs.mkdirSync(`${path}/${folderPath}`, { recursive: true });
-    // const folders = folderPath.split("/");
-    // let tempPath = "";
+    //if (!fs.existsSync(`${path}/${folderPath}`)) fs.mkdirSync(`${path}/${folderPath}`, { recursive: true });
+    const folders = folderPath.split("/");
+    let tempPath = "";
 
-    // if (folders)
-    //   folders.forEach(f => {
-    //     if (!fs.existsSync(f)) {
-    //       tempPath += `/${f}`;
-    //       fs.mkdirSync(`${path}${tempPath}`);
-    //     }
-    //   });
+    if (folders)
+      folders.forEach(f => {
+        tempPath += `/${f}`;
+        if (!fs.existsSync(`${path}${tempPath}`)) {
+          
+          fs.mkdirSync(`${path}${tempPath}`);
+        }
+      });
   }
   if (fileName) {
     if (folderPath) generateFiles(`${path}/${folderPath}`, fileName);
@@ -76,24 +77,30 @@ function generateFiles(path: string, fileName: string) {
   });
   const className = camelCased.charAt(0).toUpperCase() + camelCased.slice(1);
   const upperName = camelCased.toUpperCase();
+  const readableName = fileName
+    .split("-")
+    .reduce((acc, x) => (acc = `${acc} ${x}`), "")
+    .slice(1);
+  const readableNameWithUpper = readableName.charAt(0).toUpperCase() + readableName.slice(1);
+  const fileNameWithUnderscore = fileName.replace(/-/g, "_").toUpperCase();
 
   //#region Action
   const actionText = `import { Action } from '@ngrx/store';
   
-  export const FETCH = "[${upperName}] Fetch ${fileName}";
-  export const FETCH_SUCCESS = "[${upperName}] Fetch ${fileName} success";
+  export const FETCH = "[${readableName.toUpperCase()}] Fetch ${readableName}";
+  export const FETCH_SUCCESS = "[${readableName.toUpperCase()}] Fetch ${readableName} success";
 
   
   export class Fetch implements Action {
 	readonly type = FETCH;
   
-	constructor() { }
+	constructor(public search: any) { }
   }
   
   export class FetchSuccess implements Action {
 	readonly type = FETCH_SUCCESS;
   
-	constructor(public items: any[]) {}
+	constructor(public list: any[]) {}
   }
   
   export type Actions =
@@ -108,21 +115,21 @@ function generateFiles(path: string, fileName: string) {
   import * as ${className}Actions from './${fileName}.actions';
   
   export interface ${className}State {
-	loading${className}: boolean;
-	items: any[];
+	  loading${className}: boolean;
+	  list: any[];
   }
   
   const initialState: ${className}State = {
-	items: [],
-	loading${className}: false,
+    list: [],
+	  loading${className}: false,
   };
   
-  export function ${camelCased}Reducer(state: ${className}State, action: ${className}Actions.Actions): ${className}State {
+  export function ${camelCased}Reducer(state: ${className}State = initialState, action: ${className}Actions.Actions): ${className}State {
 	switch(action.type) {
 	  case ${className}Actions.FETCH:
-		return { ...state, items: [], loading${className}: true }
+		return { ...state, list: [], loading${className}: true }
 	  case ${className}Actions.FETCH_SUCCESS:
-		return { ...state, items: action.items, loading${className}: false }
+		return { ...state, list: action.list, loading${className}: false }
   
 	  default:
 		return { ...state }
@@ -162,8 +169,8 @@ function generateFiles(path: string, fileName: string) {
 			}),
 			catchError((err) => {
 			  return of(new ErrorActions.Set({
-				message: "${className}s not fetched.",
-				type: "${upperName}_FETCH_FAILURE",
+				message: "${readableNameWithUpper} not fetched.",
+				type: "${fileNameWithUnderscore}_FETCH_FAILURE",
 				baseError: err
 			  }));
 			})
@@ -191,7 +198,7 @@ function generateFiles(path: string, fileName: string) {
 	constructor(private _http: HttpClient) {}
   
 	fetch(search): Observable<any> {
-	  return this._http.get<any>(\`\${environment.apiURL}/api/${fileName}s\`);
+	  return this._http.get<any>(\`\${environment.apiURL}/api/${fileName[fileName.length - 1] == "s" ? fileName : fileName + "s"}\`);
 	}
   }`;
 
