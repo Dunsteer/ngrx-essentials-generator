@@ -84,6 +84,48 @@ function generateFiles(path: string, fileName: string) {
   const readableNameWithUpper = readableName.charAt(0).toUpperCase() + readableName.slice(1);
   const fileNameWithUnderscore = fileName.replace(/-/g, "_").toUpperCase();
 
+  //#region Component.ts
+  const componentTsText = `
+  import { Component, OnInit } from '@angular/core';
+  import { BaseComponent } from '@shared/components/base.component';
+  import * as SharedActions from '@shared/actions/shared.actions';
+  import * as ${className}Actions from './${fileName}.actions';
+  
+  @Component({
+      selector: 'app-${fileName}',
+      templateUrl: './${fileName}.component.html',
+      styleUrls: ['./${fileName}.component.scss']
+  })
+  export class ${className}Component extends BaseComponent implements OnInit {
+      constructor() {
+          super();
+      }
+  
+      ngOnInit(): void {
+      }
+  }
+  
+  `;
+
+  createFile("component", componentTsText);
+  //#endregion
+
+  //#region Component.scss
+  const componentScssText = `
+
+  `;
+
+  createFile("component", componentScssText,"scss");
+  //#endregion
+
+  //#region Component.html
+  const componentHtmlText = `
+    <p>${fileName} foken works mate</p>
+  `;
+
+  createFile("component", componentHtmlText,"html");
+  //#endregion
+
   //#region Action
   const actionText = `import { Action } from '@ngrx/store';
   
@@ -215,6 +257,7 @@ function generateFiles(path: string, fileName: string) {
 	  SharedModule
 	],
 	declarations: [
+    ${className}Component
 	]
   })
   export class ${className}Module { }
@@ -223,8 +266,8 @@ function generateFiles(path: string, fileName: string) {
   createFile("module", moduleText);
   //#endregion
 
-  function createFile(type: string, text: string) {
-    fs.writeFile(`${path}/${fileName}.${type}.ts`, text, "utf8", err => {
+  function createFile(type: string, text: string, extension:string = "ts") {
+    fs.writeFile(`${path}/${fileName}.${type}.${extension}`, text, "utf8", err => {
       if (err) console.error(err);
       else vscode.window.showInformationMessage(`File ${fileName}.${type}.ts created.`);
     });
